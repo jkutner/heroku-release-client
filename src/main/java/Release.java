@@ -1,0 +1,101 @@
+import java.io.File;
+import java.io.IOException;
+import java.net.URLEncoder;
+import java.util.HashMap;
+import java.util.Map;
+
+class Release {
+
+  public static final String BASE_URL = "https://api.heroku.com";
+
+  protected String blobUrl;
+
+  protected String appName;
+
+  protected Map<String,String> headers;
+
+  private String slugId;
+
+  public static void main(String[] args) throws IOException, InterruptedException {
+    if (args.length < 1) {
+      System.out.println("ERROR: Must provide appName as first arg!");
+      System.out.println("       For example:");
+      System.out.println("");
+      System.out.println("         java -jar releaser.jar sushi-123 path/to/app.tar.gz");
+      System.out.println("");
+      System.exit(1);
+    } else if (args.length < 2) {
+      System.out.println("ERROR: Must provide slugFile as second arg!");
+      System.out.println("       For example:");
+      System.out.println("");
+      System.out.println("         java -jar releaser.jar sushi-123 path/to/app.tar.gz");
+      System.out.println("");
+      System.exit(1);
+    }
+
+    Release r = new Release(args[0], getEncodedApiKey());
+
+    r.create();
+    r.upload(new File(args[1]), null);
+    r.release();
+  }
+
+  public Release(String appName, String encodedApiKey) {
+    this.appName = appName;
+    headers = new HashMap<String,String>();
+    headers.put("Authorization", encodedApiKey);
+    headers.put("Content-Type", "application/json");
+    headers.put("Accept", "application/vnd.heroku+json; version=3");
+  }
+
+  public Map create() throws IOException {
+    String urlStr = BASE_URL + "/apps/" + URLEncoder.encode(appName, "UTF-8") + "/slugs";
+
+    String createJson = "{\"process_types\":{}}";
+
+    Map slugResponse = RestClient.post(urlStr, createJson, headers);
+
+    Map blobJson = (Map)slugResponse.get("blob");
+    blobUrl = (String)blobJson.get("url");
+
+    slugId = (String)slugResponse.get("id");
+
+    return slugResponse;
+  }
+
+  public void upload(File slugFile, Logger listener) throws IOException, InterruptedException {
+    if (blobUrl == null) {
+      throw new IllegalStateException("Slug must be created before uploading!");
+    }
+
+    RestClient.put(blobUrl, slugFile, listener);
+  }
+
+  public Map release() throws IOException {
+    if (slugId == null) {
+      throw new IllegalStateException("Slug must be created before releasing!");
+    }
+
+    String urlStr = BASE_URL + "/apps/" + appName + "/releases";
+
+    String data = "{\"slug\":\"" + slugId + "\"}";
+
+    return RestClient.post(urlStr, data, headers);
+  }
+
+  public static String getEncodedApiKey() throws IOException {
+    String apiKey = System.getenv("HEROKU_API_KEY");
+    if (null == apiKey || apiKey.isEmpty()) {
+      try {
+        apiKey = Toolbelt.getApiToken();
+      } catch (Exception e) {
+        // do nothing
+      }
+    }
+
+    if (apiKey == null || apiKey.isEmpty()) {
+      throw new RuntimeException("Could not get API key! Please install the toolbelt and login with `heroku login` or set the HEROKU_API_KEY environment variable.");
+    }
+    return apiKey;
+  }
+}
