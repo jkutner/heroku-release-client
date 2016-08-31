@@ -15,7 +15,7 @@ public class Logger {
   }
 
   public void logUploadProgress(Long uploaded, Long contentLength) {
-    if (uploaded - lastUploaded > 10000000) {
+    if (uploaded - lastUploaded > 200000) {
       logDebug("Uploaded " + uploaded + "/" + contentLength);
       lastUploaded = uploaded;
     }
