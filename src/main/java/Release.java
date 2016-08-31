@@ -20,17 +20,15 @@ class Release {
 
   public static void main(String[] args) throws IOException, InterruptedException {
     if (args.length < 1) {
-      System.out.println("ERROR: Must provide appName as first arg!");
-      System.out.println("       For example:");
+      System.out.println("ERROR: Must provide appName as first arg! For example:");
       System.out.println("");
-      System.out.println("         java -jar releaser.jar sushi-123 path/to/app.tar.gz");
+      System.out.println("       java -jar releaser.jar sushi-123 path/to/app.tar.gz");
       System.out.println("");
       System.exit(1);
     } else if (args.length < 2) {
-      System.out.println("ERROR: Must provide slugFile as second arg!");
-      System.out.println("       For example:");
+      System.out.println("ERROR: Must provide slugFile as second arg! For example:");
       System.out.println("");
-      System.out.println("         java -jar releaser.jar sushi-123 path/to/app.tar.gz");
+      System.out.println("       java -jar releaser.jar sushi-123 path/to/app.tar.gz");
       System.out.println("");
       System.exit(1);
     }
