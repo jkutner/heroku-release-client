@@ -45,12 +45,16 @@ class Release {
     r.upload(new File(args[1]), new Logger());
 
     System.out.println("---> Releasing slug...");
-    r.release();
+    Map resp = r.release();
+
+    for (Object key : resp.keySet()) {
+      System.out.println("         " + key + "=" + resp.get(key));
+    }
   }
 
   public Release(String appName, String encodedApiKey) {
     this.appName = appName;
-    headers = new HashMap<String,String>();
+    headers = new HashMap<>();
     headers.put("Authorization", encodedApiKey);
     headers.put("Content-Type", "application/json");
     headers.put("Accept", "application/vnd.heroku+json; version=3");
