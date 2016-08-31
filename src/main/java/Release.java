@@ -1,3 +1,5 @@
+import sun.misc.BASE64Encoder;
+
 import java.io.File;
 import java.io.IOException;
 import java.net.URLEncoder;
@@ -33,10 +35,16 @@ class Release {
       System.exit(1);
     }
 
+    System.out.println("Releasing " + args[1] + " to " + args[0]);
     Release r = new Release(args[0], getEncodedApiKey());
 
+    System.out.println("---> Creating release...");
     r.create();
-    r.upload(new File(args[1]), null);
+
+    System.out.println("---> Uploading slug...");
+    r.upload(new File(args[1]), new Logger());
+
+    System.out.println("---> Releasing slug...");
     r.release();
   }
 
@@ -84,18 +92,19 @@ class Release {
   }
 
   public static String getEncodedApiKey() throws IOException {
-    String apiKey = System.getenv("HEROKU_API_KEY");
+    String apiKey = System.getenv("HEROKU_API_TOKEN");
     if (null == apiKey || apiKey.isEmpty()) {
       try {
         apiKey = Toolbelt.getApiToken();
       } catch (Exception e) {
-        // do nothing
+        e.printStackTrace();
       }
     }
 
     if (apiKey == null || apiKey.isEmpty()) {
       throw new RuntimeException("Could not get API key! Please install the toolbelt and login with `heroku login` or set the HEROKU_API_KEY environment variable.");
     }
-    return apiKey;
+
+    return new BASE64Encoder().encode((":" + apiKey).getBytes());
   }
 }

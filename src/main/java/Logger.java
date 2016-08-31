@@ -1,5 +1,7 @@
 public class Logger {
 
+  private Long lastUploaded = 0l;
+
   public void logInfo(String message) {
     System.out.println(message);
   }
@@ -13,7 +15,10 @@ public class Logger {
   }
 
   public void logUploadProgress(Long uploaded, Long contentLength) {
-    logDebug("Uploaded " + uploaded + "/" + contentLength);
+    if (uploaded - lastUploaded > 10000000) {
+      logDebug("Uploaded " + uploaded + "/" + contentLength);
+      lastUploaded = uploaded;
+    }
   }
 
   public Boolean isUploadProgressEnabled() {
