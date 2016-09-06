@@ -4,6 +4,7 @@ import org.apache.http.StatusLine;
 import org.apache.http.client.ClientProtocolException;
 import org.apache.http.client.HttpResponseException;
 import org.apache.http.client.methods.CloseableHttpResponse;
+import org.apache.http.client.methods.HttpGet;
 import org.apache.http.client.methods.HttpPost;
 import org.apache.http.client.methods.HttpPut;
 import org.apache.http.entity.FileEntity;
@@ -20,6 +21,43 @@ public class RestClient {
 
   private static CloseableHttpClient createClient() {
     return HttpClients.createDefault();
+  }
+
+  public static Map post(String urlStr, Map<String,String> headers) throws IOException {
+    CloseableHttpClient httpClient = createClient();
+    HttpPost request = new HttpPost(urlStr);
+    for (String key : headers.keySet()) {
+      String value = headers.get(key);
+      request.setHeader(key, value);
+    }
+
+    try (CloseableHttpResponse response = httpClient.execute(request)) {
+      return (Map)handleResponse(response, Map.class);
+    }
+  }
+
+  public static Map get(String urlStr, Map<String,String> headers) throws IOException {
+    CloseableHttpClient httpClient = createClient();
+    HttpGet request = new HttpGet(urlStr);
+    for (String key : headers.keySet()) {
+      String value = headers.get(key);
+      request.setHeader(key, value);
+    }
+    try (CloseableHttpResponse response = httpClient.execute(request)) {
+      return (Map)handleResponse(response, Map.class);
+    }
+  }
+
+  public static void get(String urlStr, Map<String,String> headers, OutputLogger logger) throws IOException {
+    CloseableHttpClient httpClient = createClient();
+    HttpGet request = new HttpGet(urlStr);
+    for (String key : headers.keySet()) {
+      String value = headers.get(key);
+      request.setHeader(key, value);
+    }
+    try (CloseableHttpResponse response = httpClient.execute(request)) {
+      handleResponse(response, logger);
+    }
   }
 
   public static Map post(String urlStr, String data, Map<String,String> headers) throws IOException {

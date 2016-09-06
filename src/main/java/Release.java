@@ -22,13 +22,13 @@ class Release {
     if (args.length < 1) {
       System.out.println("ERROR: Must provide appName as first arg! For example:");
       System.out.println("");
-      System.out.println("       java -jar releaser.jar sushi-123 path/to/app.tar.gz");
+      System.out.println("       java -cp target/classes:target/dependency/* Release sushi-123 path/to/app.tar.gz");
       System.out.println("");
       System.exit(1);
     } else if (args.length < 2) {
       System.out.println("ERROR: Must provide slugFile as second arg! For example:");
       System.out.println("");
-      System.out.println("       java -jar releaser.jar sushi-123 path/to/app.tar.gz");
+      System.out.println("       java -cp target/classes:target/dependency/* Release sushi-123 path/to/app.tar.gz");
       System.out.println("");
       System.exit(1);
     }
